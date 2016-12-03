@@ -29,3 +29,13 @@ func (s *MerkelSuite) TestBuildTreeOfTwoElements(c *C) {
 	t, _ := merkleTreeHash([]string{"one", "two"})
 	c.Assert(exp, DeepEquals, t)
 }
+
+func (s *MerkelSuite) TestBuildTreeOfFourElements(c *C) {
+	b := append(createSha256([]byte("one")), createSha256([]byte("two"))...)
+	first := createSha256(b)
+	d := append(createSha256([]byte("three")), createSha256([]byte("four"))...)
+	second := createSha256(d)
+	exp := createSha256(append(first, second...))
+	t, _ := merkleTreeHash([]string{"one", "two", "three", "four"})
+	c.Assert(exp, DeepEquals, t)
+}
