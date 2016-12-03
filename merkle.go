@@ -5,22 +5,18 @@ import (
 	"errors"
 )
 
-var dataList = []string{"one", "two", "three", "four"}
-
 func getIndex(s []string, e string) int {
-	i := 0
-	for i < len(dataList) {
+	for i := 0; i < len(s); i++ {
 		if s[i] == e {
 			return i
 		}
-		i++
 	}
 	return -1
 }
 
 func createSha256(data []byte) []byte {
 	h := sha256.New()
-	h.Write([]byte(data))
+	h.Write(data)
 	return h.Sum(nil)
 }
 
@@ -34,6 +30,6 @@ func merkleTreeHash(data []string) ([]byte, error) {
 	mp := len(data) / 2
 	first, _ := merkleTreeHash(data[:mp])
 	second, _ := merkleTreeHash(data[mp:])
-	b := append(first, second...)
-	return createSha256(b), nil
+	b := createSha256(append(first, second...))
+	return b, nil
 }
