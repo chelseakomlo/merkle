@@ -23,18 +23,20 @@ func (s *MerkelSuite) TestBuildTreeOfOneElement(c *C) {
 	c.Assert(exp, DeepEquals, t)
 }
 
+func createNode(first, second string) []byte {
+	a, b := createSha256([]byte(first)), createSha256([]byte(second))
+	return createSha256(a, b)
+}
+
 func (s *MerkelSuite) TestBuildTreeOfTwoElements(c *C) {
-	a, b := createSha256([]byte("one")), createSha256([]byte("two"))
-	exp := createSha256(a, b)
+	exp := createNode("one", "two")
 	t, _ := merkleTreeHash([]string{"one", "two"})
 	c.Assert(exp, DeepEquals, t)
 }
 
 func (s *MerkelSuite) TestBuildTreeOfFourElements(c *C) {
-	a, b := createSha256([]byte("one")), createSha256([]byte("two"))
-	first := createSha256(a, b)
-	d, e := createSha256([]byte("three")), createSha256([]byte("four"))
-	second := createSha256(d, e)
+	first := createNode("one", "two")
+	second := createNode("three", "four")
 	exp := createSha256(first, second)
 	t, _ := merkleTreeHash([]string{"one", "two", "three", "four"})
 	c.Assert(exp, DeepEquals, t)
