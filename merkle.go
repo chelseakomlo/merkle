@@ -14,9 +14,17 @@ func getIndex(s []string, e string) int {
 	return -1
 }
 
-func createSha256(data []byte) []byte {
+func flattenOneLevel(b [][]byte) []byte {
+	var ret []byte
+	for _, i := range b {
+		ret = append(ret, i...)
+	}
+	return ret
+}
+
+func createSha256(data ...[]byte) []byte {
 	h := sha256.New()
-	h.Write(data)
+	h.Write(flattenOneLevel(data))
 	return h.Sum(nil)
 }
 
@@ -30,6 +38,6 @@ func merkleTreeHash(data []string) ([]byte, error) {
 	mp := len(data) / 2
 	first, _ := merkleTreeHash(data[:mp])
 	second, _ := merkleTreeHash(data[mp:])
-	b := createSha256(append(first, second...))
+	b := createSha256(first, second)
 	return b, nil
 }
