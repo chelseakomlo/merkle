@@ -5,6 +5,12 @@ import (
 	"errors"
 )
 
+type merkleTree struct {
+	signature []byte
+	right     *merkleTree
+	left      *merkleTree
+}
+
 func getIndex(s []string, e string) int {
 	for i := 0; i < len(s); i++ {
 		if s[i] == e {
@@ -28,16 +34,18 @@ func createSha256(data ...[]byte) []byte {
 	return h.Sum(nil)
 }
 
-func merkleTreeHash(data []string) ([]byte, error) {
+func createMerkleTree(data []string) (*merkleTree, error) {
+	m := &merkleTree{}
 	if len(data) == 0 {
-		return nil, errors.New("Must send data of at least one element")
+		return m, errors.New("Must send data of at least one element")
 	}
 	if len(data) == 1 {
-		return createSha256([]byte(data[0])), nil
+		m.signature = createSha256([]byte(data[0]))
+		return m, nil
 	}
 	mp := len(data) / 2
-	first, _ := merkleTreeHash(data[:mp])
-	second, _ := merkleTreeHash(data[mp:])
-	b := createSha256(first, second)
-	return b, nil
+	m.right, _ = createMerkleTree(data[:mp])
+	m.left, _ = createMerkleTree(data[mp:])
+	m.signature = createSha256(m.right.signature, m.left.signature)
+	return m, nil
 }
