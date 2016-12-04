@@ -5,10 +5,36 @@ import (
 	"errors"
 )
 
+type node interface {
+	createSignature()
+	getSignature() []byte
+}
+
 type merkleTree struct {
 	signature []byte
-	right     *merkleTree
-	left      *merkleTree
+	right     node
+	left      node
+}
+
+func (m *merkleTree) createSignature() {
+	m.signature = createSha256(m.right.getSignature(), m.left.getSignature())
+}
+
+func (m *merkleTree) getSignature() []byte {
+	return m.signature
+}
+
+type leaf struct {
+	signature []byte
+	data      string
+}
+
+func (l *leaf) createSignature() {
+	l.signature = createSha256([]byte(l.data))
+}
+
+func (l *leaf) getSignature() []byte {
+	return l.signature
 }
 
 func getIndex(s []string, e string) int {
@@ -34,18 +60,36 @@ func createSha256(data ...[]byte) []byte {
 	return h.Sum(nil)
 }
 
-func createMerkleTree(data []string) (*merkleTree, error) {
-	m := &merkleTree{}
+func createLeaf(data string) *leaf {
+	l := &leaf{
+		data: data,
+	}
+	l.createSignature()
+	return l
+}
+
+func (m *merkleTree) createNode(right, left string) {
+	m.right = createLeaf(right)
+	m.left = createLeaf(left)
+	m.createSignature()
+}
+
+func createMerkleTree(data []string) (node, error) {
 	if len(data) == 0 {
-		return m, errors.New("Must send data of at least one element")
+		return &merkleTree{}, errors.New("Must send data of at least one element")
 	}
 	if len(data) == 1 {
-		m.signature = createSha256([]byte(data[0]))
+		return createLeaf(data[0]), nil
+	}
+
+	m := &merkleTree{}
+	if len(data) == 2 {
+		m.createNode(data[0], data[1])
 		return m, nil
 	}
 	mp := len(data) / 2
 	m.right, _ = createMerkleTree(data[:mp])
 	m.left, _ = createMerkleTree(data[mp:])
-	m.signature = createSha256(m.right.signature, m.left.signature)
+	m.createSignature()
 	return m, nil
 }
