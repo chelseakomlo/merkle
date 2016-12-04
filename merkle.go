@@ -68,10 +68,13 @@ func createLeaf(data string) *leaf {
 	return l
 }
 
-func (m *merkleTree) createNode(right, left string) {
-	m.right = createLeaf(right)
-	m.left = createLeaf(left)
+func createNode(right, left string) *merkleTree {
+	m := &merkleTree{
+		right: createLeaf(right),
+		left:  createLeaf(left),
+	}
 	m.createSignature()
+	return m
 }
 
 func createMerkleTree(data []string) (node, error) {
@@ -82,12 +85,11 @@ func createMerkleTree(data []string) (node, error) {
 		return createLeaf(data[0]), nil
 	}
 
-	m := &merkleTree{}
 	if len(data) == 2 {
-		m.createNode(data[0], data[1])
-		return m, nil
+		return createNode(data[0], data[1]), nil
 	}
 	mp := len(data) / 2
+	m := &merkleTree{}
 	m.right, _ = createMerkleTree(data[:mp])
 	m.left, _ = createMerkleTree(data[mp:])
 	m.createSignature()

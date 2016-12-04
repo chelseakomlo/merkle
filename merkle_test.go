@@ -12,7 +12,7 @@ type MerkelSuite struct{}
 
 var _ = Suite(&MerkelSuite{})
 
-func createNode(first, second string) []byte {
+func createSignature(first, second string) []byte {
 	a, b := createSha256([]byte(first)), createSha256([]byte(second))
 	return createSha256(a, b)
 }
@@ -34,14 +34,14 @@ func (s *MerkelSuite) TestSignatureOfOneElement(c *C) {
 }
 
 func (s *MerkelSuite) TestSignatureOfTwoElements(c *C) {
-	exp := createNode("one", "two")
+	exp := createSignature("one", "two")
 	t, _ := createMerkleTree([]string{"one", "two"})
 	c.Assert(t.getSignature(), DeepEquals, exp)
 }
 
 func (s *MerkelSuite) TestSingatureOfFourElements(c *C) {
-	first := createNode("one", "two")
-	second := createNode("three", "four")
+	first := createSignature("one", "two")
+	second := createSignature("three", "four")
 	exp := createSha256(first, second)
 	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
 	c.Assert(exp, DeepEquals, t.getSignature())
