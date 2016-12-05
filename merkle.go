@@ -6,7 +6,6 @@ import (
 )
 
 type node interface {
-	createSignature()
 	getSignature() []byte
 }
 
@@ -16,21 +15,13 @@ type merkleTree struct {
 	left      node
 }
 
-func (m *merkleTree) createSignature() {
-	m.signature = createSha256(m.right.getSignature(), m.left.getSignature())
-}
-
-func (m *merkleTree) getSignature() []byte {
-	return m.signature
-}
-
 type leaf struct {
 	signature []byte
 	data      string
 }
 
-func (l *leaf) createSignature() {
-	l.signature = createSha256([]byte(l.data))
+func (m *merkleTree) getSignature() []byte {
+	return m.signature
 }
 
 func (l *leaf) getSignature() []byte {
@@ -62,36 +53,43 @@ func createSha256(data ...[]byte) []byte {
 
 func createLeaf(data string) *leaf {
 	l := &leaf{
-		data: data,
+		data:      data,
+		signature: createSha256([]byte(data)),
 	}
-	l.createSignature()
 	return l
 }
 
-func createNode(right, left string) *merkleTree {
-	m := &merkleTree{
-		right: createLeaf(right),
-		left:  createLeaf(left),
+func createTree(data []string) *merkleTree {
+	var m *merkleTree
+	if len(data) == 2 {
+		right := createLeaf(data[0])
+		left := createLeaf(data[1])
+		m = &merkleTree{
+			right:     right,
+			left:      left,
+			signature: createSha256(right.signature, left.signature),
+		}
+	} else {
+		mp := len(data) / 2
+		right := createTree(data[:mp])
+		left := createTree(data[mp:])
+		m = &merkleTree{
+			right:     right,
+			left:      left,
+			signature: createSha256(right.signature, left.signature),
+		}
 	}
-	m.createSignature()
 	return m
 }
 
-func createMerkleTree(data []string) (node, error) {
+func createMerkleTree(data []string) (*merkleTree, error) {
 	if len(data) == 0 {
 		return &merkleTree{}, errors.New("Must send data of at least one element")
 	}
+
 	if len(data) == 1 {
-		return createLeaf(data[0]), nil
+		return &merkleTree{signature: createSha256([]byte(data[0]))}, nil
 	}
 
-	if len(data) == 2 {
-		return createNode(data[0], data[1]), nil
-	}
-	mp := len(data) / 2
-	m := &merkleTree{}
-	m.right, _ = createMerkleTree(data[:mp])
-	m.left, _ = createMerkleTree(data[mp:])
-	m.createSignature()
-	return m, nil
+	return createTree(data), nil
 }
