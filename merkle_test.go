@@ -30,19 +30,19 @@ func (s *MerkelSuite) TestBuildWithValidInputReturnsNoError(c *C) {
 func (s *MerkelSuite) TestSignatureOfOneElement(c *C) {
 	exp := createSha256([]byte("one"))
 	t, _ := createMerkleTree([]string{"one"})
-	c.Assert(t.signature, DeepEquals, exp)
+	c.Assert(t.getSignature(), DeepEquals, exp)
 }
 
 func (s *MerkelSuite) TestSignatureOfTwoElements(c *C) {
 	exp := createSignature("one", "two")
 	t, _ := createMerkleTree([]string{"one", "two"})
-	c.Assert(t.signature, DeepEquals, exp)
+	c.Assert(t.getSignature(), DeepEquals, exp)
 }
 
-func (s *MerkelSuite) TestSingatureOfFourElements(c *C) {
+func (s *MerkelSuite) TestSignatureOfFourElements(c *C) {
 	first := createSignature("one", "two")
 	second := createSignature("three", "four")
 	exp := createSha256(first, second)
 	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
-	c.Assert(exp, DeepEquals, t.signature)
+	c.Assert(exp, DeepEquals, t.getSignature())
 }
