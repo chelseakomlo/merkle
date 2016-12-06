@@ -5,9 +5,7 @@ import (
 	"errors"
 )
 
-type node interface {
-	getSignature() []byte
-}
+type node interface{}
 
 type merkleTree struct {
 	signature []byte
@@ -18,14 +16,6 @@ type merkleTree struct {
 type leaf struct {
 	signature []byte
 	data      string
-}
-
-func (m *merkleTree) getSignature() []byte {
-	return m.signature
-}
-
-func (l *leaf) getSignature() []byte {
-	return l.signature
 }
 
 func getIndex(s []string, e string) int {
