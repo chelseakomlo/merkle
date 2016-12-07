@@ -5,7 +5,10 @@ import (
 	"errors"
 )
 
-type node interface{}
+type node interface {
+	getSignature() []byte
+	getLeaf(d string) (bool, *leaf)
+}
 
 type merkleTree struct {
 	signature []byte
@@ -16,6 +19,36 @@ type merkleTree struct {
 type leaf struct {
 	signature []byte
 	data      string
+}
+
+type proof struct {
+	grandparent *merkleTree
+	parent      *merkleTree
+	sibling     *leaf
+}
+
+func (m *merkleTree) getSignature() []byte {
+	return m.signature
+}
+
+func (l *leaf) getSignature() []byte {
+	return l.signature
+}
+
+func (m *merkleTree) getLeaf(d string) (bool, *leaf) {
+	hasLeaf, l := m.right.getLeaf(d)
+	if hasLeaf {
+		return true, l
+	}
+	return m.left.getLeaf(d)
+}
+
+func (l *leaf) getLeaf(d string) (bool, *leaf) {
+	return (l.data == d), l
+}
+
+func (m *merkleTree) getProofFor(e string) (*proof, error) {
+	return &proof{}, errors.New("This element is not a member")
 }
 
 func getIndex(s []string, e string) int {
@@ -50,26 +83,23 @@ func createLeaf(data string) *leaf {
 }
 
 func createTree(data []string) *merkleTree {
-	var m *merkleTree
-	if len(data) == 2 {
-		right := createLeaf(data[0])
-		left := createLeaf(data[1])
-		m = &merkleTree{
-			right:     right,
-			left:      left,
-			signature: createSha256(right.signature, left.signature),
-		}
+	var left node
+	var right node
+
+	if len(data) == 2 { // does not support uneven trees
+		right = createLeaf(data[0])
+		left = createLeaf(data[1])
 	} else {
 		mp := len(data) / 2
-		right := createTree(data[:mp])
-		left := createTree(data[mp:])
-		m = &merkleTree{
-			right:     right,
-			left:      left,
-			signature: createSha256(right.signature, left.signature),
-		}
+		right = createTree(data[:mp])
+		left = createTree(data[mp:])
 	}
-	return m
+
+	return &merkleTree{
+		right:     right,
+		left:      left,
+		signature: createSha256(right.getSignature(), left.getSignature()),
+	}
 }
 
 func createMerkleTree(data []string) (*merkleTree, error) {

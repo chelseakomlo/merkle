@@ -46,3 +46,26 @@ func (s *MerkelSuite) TestSignatureOfFourElements(c *C) {
 	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
 	c.Assert(exp, DeepEquals, t.getSignature())
 }
+
+func (s *MerkelSuite) TestAuditTreeWithOneElementWhenElementIsNotInTree(c *C) {
+	t, _ := createMerkleTree([]string{"one"})
+	_, err := t.getProofFor("two")
+	c.Assert(err.Error(), Equals, "This element is not a member")
+}
+
+func (s *MerkelSuite) TestAuditTreeWithOneElementWhenElementIsInTree(c *C) {
+}
+
+func (s *MerkelSuite) TestFindLeafInMerkleTreeOfTwoElements(c *C) {
+	t, _ := createMerkleTree([]string{"one", "two"})
+	exists, l := t.getLeaf("one")
+	c.Assert(exists, Equals, true)
+	c.Assert(l.data, Equals, "one")
+}
+
+func (s *MerkelSuite) TestFindLeafInMerkleTreeOfFourElements(c *C) {
+	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
+	exists, l := t.getLeaf("three")
+	c.Assert(exists, Equals, true)
+	c.Assert(l.data, Equals, "three")
+}
