@@ -83,16 +83,13 @@ func createLeaf(data string) *leaf {
 }
 
 func createTree(data []string) *merkleTree {
-	var left node
-	var right node
+	var left, right node
 
 	if len(data) == 2 { // does not support uneven trees
-		right = createLeaf(data[0])
-		left = createLeaf(data[1])
+		right, left = createLeaf(data[0]), createLeaf(data[1])
 	} else {
 		mp := len(data) / 2
-		right = createTree(data[:mp])
-		left = createTree(data[mp:])
+		right, left = createTree(data[:mp]), createTree(data[mp:])
 	}
 
 	return &merkleTree{
