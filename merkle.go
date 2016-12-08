@@ -7,7 +7,7 @@ import (
 
 type node interface {
 	getSignature() []byte
-	getLeaf(d string) (bool, *leaf)
+	getProofForLeaf(d string, p *proof) bool
 }
 
 type merkleTree struct {
@@ -22,9 +22,17 @@ type leaf struct {
 }
 
 type proof struct {
-	grandparent *merkleTree
-	parent      *merkleTree
-	sibling     *leaf
+	data [][]byte
+}
+
+func (p *proof) next() []byte {
+	var i []byte
+	i, p.data = p.data[0], p.data[1:]
+	return i
+}
+
+func (p *proof) add(e []byte) {
+	p.data = append(p.data, e)
 }
 
 func (m *merkleTree) getSignature() []byte {
@@ -35,20 +43,26 @@ func (l *leaf) getSignature() []byte {
 	return l.signature
 }
 
-func (m *merkleTree) getLeaf(d string) (bool, *leaf) {
-	hasLeaf, l := m.right.getLeaf(d)
-	if hasLeaf {
-		return true, l
+func (m *merkleTree) getProofForLeaf(d string, p *proof) bool {
+	if m.right.getProofForLeaf(d, p) {
+		p.add(m.left.getSignature())
+		return true
 	}
-	return m.left.getLeaf(d)
+	if m.left.getProofForLeaf(d, p) {
+		p.add(m.right.getSignature())
+		return true
+	}
+	return false
 }
 
-func (l *leaf) getLeaf(d string) (bool, *leaf) {
-	return (l.data == d), l
+func (l *leaf) getProofForLeaf(d string, p *proof) bool {
+	return l.data == d
 }
 
-func (m *merkleTree) getProofFor(e string) (*proof, error) {
-	return &proof{}, errors.New("This element is not a member")
+func (m *merkleTree) getProofFor(e string) *proof {
+	p := &proof{}
+	m.getProofForLeaf(e, p)
+	return p
 }
 
 func getIndex(s []string, e string) int {

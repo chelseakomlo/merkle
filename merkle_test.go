@@ -40,32 +40,72 @@ func (s *MerkelSuite) TestSignatureOfTwoElements(c *C) {
 }
 
 func (s *MerkelSuite) TestSignatureOfFourElements(c *C) {
-	first := createSignature("one", "two")
-	second := createSignature("three", "four")
-	exp := createSha256(first, second)
+	firstNode := createSignature("one", "two")
+	secondNode := createSignature("three", "four")
+	exp := createSha256(firstNode, secondNode)
 	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
 	c.Assert(exp, DeepEquals, t.getSignature())
 }
 
 func (s *MerkelSuite) TestAuditTreeWithOneElementWhenElementIsNotInTree(c *C) {
-	t, _ := createMerkleTree([]string{"one"})
-	_, err := t.getProofFor("two")
-	c.Assert(err.Error(), Equals, "This element is not a member")
+	c.Skip("yeah should do this")
 }
 
-func (s *MerkelSuite) TestAuditTreeWithOneElementWhenElementIsInTree(c *C) {
-}
-
-func (s *MerkelSuite) TestFindLeafInMerkleTreeOfTwoElements(c *C) {
+func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElements(c *C) {
 	t, _ := createMerkleTree([]string{"one", "two"})
-	exists, l := t.getLeaf("one")
-	c.Assert(exists, Equals, true)
-	c.Assert(l.data, Equals, "one")
+	p := t.getProofFor("two")
+	c.Assert(p.data[0], DeepEquals, createSha256([]byte("one")))
 }
 
-func (s *MerkelSuite) TestFindLeafInMerkleTreeOfFourElements(c *C) {
+func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElementsOppositeSide(c *C) {
+	t, _ := createMerkleTree([]string{"one", "two"})
+	p := t.getProofFor("one")
+	c.Assert(p.next(), DeepEquals, createSha256([]byte("two")))
+}
+
+func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElements(c *C) {
 	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
-	exists, l := t.getLeaf("three")
-	c.Assert(exists, Equals, true)
-	c.Assert(l.data, Equals, "three")
+	p := t.getProofFor("two")
+
+	proofNode := createSha256([]byte("two"))
+	parentNode := createSha256(p.next(), proofNode)
+	rootNode := createSha256(parentNode, p.next())
+
+	c.Assert(rootNode, DeepEquals, t.getSignature())
+}
+
+func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElementsOppositeSide(c *C) {
+	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
+	p := t.getProofFor("three")
+
+	proofNode := createSha256([]byte("three"))
+	parentNode := createSha256(proofNode, p.next())
+	rootNode := createSha256(p.next(), parentNode)
+
+	c.Assert(rootNode, DeepEquals, t.getSignature())
+}
+
+func (s *MerkelSuite) TestNextForProof(c *C) {
+	p := &proof{
+		data: [][]byte{[]byte{1}, []byte{2}, []byte{3}},
+	}
+	one := p.next()
+	c.Assert(one, DeepEquals, []byte{1})
+	c.Assert(len(p.data), Equals, 2)
+	two := p.next()
+	c.Assert(two, DeepEquals, []byte{2})
+	c.Assert(len(p.data), Equals, 1)
+	three := p.next()
+	c.Assert(three, DeepEquals, []byte{3})
+	c.Assert(len(p.data), Equals, 0)
+}
+
+func (s *MerkelSuite) TestAddForProof(c *C) {
+	p := &proof{
+		data: make([][]byte, 0),
+	}
+	p.add([]byte{1})
+	c.Assert(p.data, DeepEquals, [][]byte{[]byte{1}})
+	p.add([]byte{2})
+	c.Assert(p.data, DeepEquals, [][]byte{[]byte{1}, []byte{2}})
 }
