@@ -2,7 +2,7 @@ package merkle
 
 import (
 	"crypto/sha256"
-	"errors"
+	"fmt"
 )
 
 type node interface {
@@ -22,16 +22,16 @@ type leaf struct {
 }
 
 type proof struct {
-	auditPath [][]byte // array of nodes proving the inclusion of an element
+	auditPath []node // array of nodes proving the inclusion of an element
 }
 
 func (p *proof) next() []byte {
-	var i []byte
+	var i node
 	i, p.auditPath = p.auditPath[0], p.auditPath[1:]
-	return i
+	return i.getSignature()
 }
 
-func (p *proof) add(e []byte) {
+func (p *proof) add(e node) {
 	p.auditPath = append(p.auditPath, e)
 }
 
@@ -45,11 +45,11 @@ func (l *leaf) getSignature() []byte {
 
 func (m *merkleTree) getProofForLeaf(d string, p *proof) bool {
 	if m.right.getProofForLeaf(d, p) {
-		p.add(m.left.getSignature())
+		p.add(m.left)
 		return true
 	}
 	if m.left.getProofForLeaf(d, p) {
-		p.add(m.right.getSignature())
+		p.add(m.right)
 		return true
 	}
 	return false
@@ -59,10 +59,13 @@ func (l *leaf) getProofForLeaf(d string, p *proof) bool {
 	return l.data == d
 }
 
-func (m *merkleTree) getProofFor(e string) *proof {
+func (m *merkleTree) getProofFor(e string) (*proof, error) {
 	p := &proof{}
-	m.getProofForLeaf(e, p)
-	return p
+	exists := m.getProofForLeaf(e, p)
+	if !exists {
+		return &proof{}, fmt.Errorf("Cannot construct audit path for %s", e)
+	}
+	return p, nil
 }
 
 func getIndex(s []string, e string) int {
@@ -115,7 +118,7 @@ func createTree(data []string) *merkleTree {
 
 func createMerkleTree(data []string) (*merkleTree, error) {
 	if len(data) == 0 {
-		return &merkleTree{}, errors.New("Must send data of at least one element")
+		return &merkleTree{}, fmt.Errorf("Must send data of at least one element")
 	}
 
 	if len(data) == 1 {
