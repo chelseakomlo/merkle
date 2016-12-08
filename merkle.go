@@ -6,19 +6,19 @@ import (
 )
 
 type node interface {
-	getSignature() []byte
+	getHash() []byte
 	getProofForLeaf(d string, p *proof) bool
 }
 
 type merkleTree struct {
-	signature []byte
-	right     node
-	left      node
+	hash  []byte
+	right node
+	left  node
 }
 
 type leaf struct {
-	signature []byte
-	data      string
+	hash []byte
+	data string
 }
 
 type proof struct {
@@ -28,19 +28,19 @@ type proof struct {
 func (p *proof) next() []byte {
 	var i node
 	i, p.auditPath = p.auditPath[0], p.auditPath[1:]
-	return i.getSignature()
+	return i.getHash()
 }
 
 func (p *proof) add(e node) {
 	p.auditPath = append(p.auditPath, e)
 }
 
-func (m *merkleTree) getSignature() []byte {
-	return m.signature
+func (m *merkleTree) getHash() []byte {
+	return m.hash
 }
 
-func (l *leaf) getSignature() []byte {
-	return l.signature
+func (l *leaf) getHash() []byte {
+	return l.hash
 }
 
 func (m *merkleTree) getProofForLeaf(d string, p *proof) bool {
@@ -93,8 +93,8 @@ func createSha256(data ...[]byte) []byte {
 
 func createLeaf(data string) *leaf {
 	return &leaf{
-		data:      data,
-		signature: createSha256([]byte(data)),
+		data: data,
+		hash: createSha256([]byte(data)),
 	}
 }
 
@@ -109,9 +109,9 @@ func createTree(data []string) *merkleTree {
 	}
 
 	return &merkleTree{
-		right:     right,
-		left:      left,
-		signature: createSha256(right.getSignature(), left.getSignature()),
+		right: right,
+		left:  left,
+		hash:  createSha256(right.getHash(), left.getHash()),
 	}
 }
 
@@ -121,7 +121,7 @@ func createMerkleTree(data []string) (*merkleTree, error) {
 	}
 
 	if len(data) == 1 {
-		return &merkleTree{signature: createSha256([]byte(data[0]))}, nil
+		return &merkleTree{hash: createSha256([]byte(data[0]))}, nil
 	}
 
 	return createTree(data), nil
