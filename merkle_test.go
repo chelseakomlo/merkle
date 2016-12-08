@@ -54,7 +54,7 @@ func (s *MerkelSuite) TestAuditTreeWithOneElementWhenElementIsNotInTree(c *C) {
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElements(c *C) {
 	t, _ := createMerkleTree([]string{"one", "two"})
 	p := t.getProofFor("two")
-	c.Assert(p.data[0], DeepEquals, createSha256([]byte("one")))
+	c.Assert(p.auditPath[0], DeepEquals, createSha256([]byte("one")))
 }
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElementsOppositeSide(c *C) {
@@ -87,25 +87,29 @@ func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElementsOppositeSide(c *C) {
 
 func (s *MerkelSuite) TestNextForProof(c *C) {
 	p := &proof{
-		data: [][]byte{[]byte{1}, []byte{2}, []byte{3}},
+		auditPath: [][]byte{[]byte{1}, []byte{2}, []byte{3}},
 	}
+
 	one := p.next()
 	c.Assert(one, DeepEquals, []byte{1})
-	c.Assert(len(p.data), Equals, 2)
+	c.Assert(len(p.auditPath), Equals, 2)
+
 	two := p.next()
 	c.Assert(two, DeepEquals, []byte{2})
-	c.Assert(len(p.data), Equals, 1)
+	c.Assert(len(p.auditPath), Equals, 1)
+
 	three := p.next()
 	c.Assert(three, DeepEquals, []byte{3})
-	c.Assert(len(p.data), Equals, 0)
+	c.Assert(len(p.auditPath), Equals, 0)
 }
 
 func (s *MerkelSuite) TestAddForProof(c *C) {
 	p := &proof{
-		data: make([][]byte, 0),
+		auditPath: make([][]byte, 0),
 	}
 	p.add([]byte{1})
-	c.Assert(p.data, DeepEquals, [][]byte{[]byte{1}})
+	c.Assert(p.auditPath, DeepEquals, [][]byte{[]byte{1}})
+
 	p.add([]byte{2})
-	c.Assert(p.data, DeepEquals, [][]byte{[]byte{1}, []byte{2}})
+	c.Assert(p.auditPath, DeepEquals, [][]byte{[]byte{1}, []byte{2}})
 }

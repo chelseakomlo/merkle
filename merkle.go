@@ -22,17 +22,17 @@ type leaf struct {
 }
 
 type proof struct {
-	data [][]byte
+	auditPath [][]byte // array of nodes proving the inclusion of an element
 }
 
 func (p *proof) next() []byte {
 	var i []byte
-	i, p.data = p.data[0], p.data[1:]
+	i, p.auditPath = p.auditPath[0], p.auditPath[1:]
 	return i
 }
 
 func (p *proof) add(e []byte) {
-	p.data = append(p.data, e)
+	p.auditPath = append(p.auditPath, e)
 }
 
 func (m *merkleTree) getSignature() []byte {
