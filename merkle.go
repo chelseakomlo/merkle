@@ -92,11 +92,10 @@ func createSha256(data ...[]byte) []byte {
 }
 
 func createLeaf(data string) *leaf {
-	l := &leaf{
+	return &leaf{
 		data:      data,
 		signature: createSha256([]byte(data)),
 	}
-	return l
 }
 
 func createTree(data []string) *merkleTree {
