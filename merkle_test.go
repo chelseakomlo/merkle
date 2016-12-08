@@ -27,19 +27,19 @@ func (s *MerkelSuite) TestBuildWithValidInputReturnsNoError(c *C) {
 	c.Assert(err, IsNil)
 }
 
-func (s *MerkelSuite) TestHashOfOneElement(c *C) {
+func (s *MerkelSuite) TestTreeOfOneElement(c *C) {
 	exp := createSha256([]byte("one"))
 	t, _ := createMerkleTree([]string{"one"})
 	c.Assert(t.getHash(), DeepEquals, exp)
 }
 
-func (s *MerkelSuite) TestHashOfTwoElements(c *C) {
+func (s *MerkelSuite) TestTreeOfTwoElements(c *C) {
 	exp := createHash("one", "two")
 	t, _ := createMerkleTree([]string{"one", "two"})
 	c.Assert(t.getHash(), DeepEquals, exp)
 }
 
-func (s *MerkelSuite) TestHashOfFourElements(c *C) {
+func (s *MerkelSuite) TestTreeOfFourElements(c *C) {
 	firstNode := createHash("one", "two")
 	secondNode := createHash("three", "four")
 	exp := createSha256(firstNode, secondNode)
