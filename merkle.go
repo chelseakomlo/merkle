@@ -75,10 +75,11 @@ func createLeaf(data string) *leaf {
 func createTree(data []string) *merkleTree {
 	var left, right node
 
-	if len(data) == 2 { // does not support uneven trees
+	if len(data) == 2 { // no uneven trees (yet)
 		left, right = createLeaf(data[0]), createLeaf(data[1])
 	} else {
-		left, right = createTree(data[:len(data)-2]), createTree(data[len(data)-2:])
+		left = createTree(data[:len(data)-2])
+		right = createTree(data[len(data)-2:])
 	}
 
 	return &merkleTree{
