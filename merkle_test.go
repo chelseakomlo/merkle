@@ -47,6 +47,18 @@ func (s *MerkelSuite) TestTreeOfFourElements(c *C) {
 	c.Assert(exp, DeepEquals, t.getHash())
 }
 
+func (s *MerkelSuite) TestTreeOfSixElements(c *C) {
+	firstNode := createHash("one", "two")
+	secondNode := createHash("three", "four")
+	thirdNode := createSha256(firstNode, secondNode)
+	fourthNode := createHash("five", "six")
+	exp := createSha256(thirdNode, fourthNode)
+
+	t, _ := createMerkleTree([]string{"one", "two", "three", "four", "five",
+		"six"})
+	c.Assert(exp, DeepEquals, t.getHash())
+}
+
 func (s *MerkelSuite) TestAuditTreeWithOneElementWhenElementIsNotInTree(c *C) {
 	t, _ := createMerkleTree([]string{"one", "two"})
 	_, err := t.getProofFor("three")

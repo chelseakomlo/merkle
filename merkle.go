@@ -76,16 +76,15 @@ func createTree(data []string) *merkleTree {
 	var left, right node
 
 	if len(data) == 2 { // does not support uneven trees
-		right, left = createLeaf(data[0]), createLeaf(data[1])
+		left, right = createLeaf(data[0]), createLeaf(data[1])
 	} else {
-		mp := len(data) / 2
-		right, left = createTree(data[:mp]), createTree(data[mp:])
+		left, right = createTree(data[:len(data)-2]), createTree(data[len(data)-2:])
 	}
 
 	return &merkleTree{
 		right: right,
 		left:  left,
-		hash:  createSha256(right.getHash(), left.getHash()),
+		hash:  createSha256(left.getHash(), right.getHash()),
 	}
 }
 
