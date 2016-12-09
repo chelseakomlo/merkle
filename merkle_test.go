@@ -99,6 +99,19 @@ func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElementsOppositeSide(c *C) {
 	c.Assert(rootNode, DeepEquals, t.getHash())
 }
 
+func (s *MerkelSuite) TestGetProofInMerkleTreeOfSixElements(c *C) {
+	t, _ := createMerkleTree([]string{"one", "two", "three", "four", "five",
+		"six"})
+	p, _ := t.getProofFor("three")
+
+	proofNode := createSha256([]byte("three"))
+	parentNode := createSha256(proofNode, p.next())
+	grandparentNode := createSha256(p.next(), parentNode)
+	rootNode := createSha256(grandparentNode, p.next())
+
+	c.Assert(rootNode, DeepEquals, t.getHash())
+}
+
 func (s *MerkelSuite) TestNextForProof(c *C) {
 	p := &proof{
 		auditPath: []node{
