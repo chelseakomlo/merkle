@@ -18,26 +18,26 @@ func createHash(first, second string) []byte {
 }
 
 func (s *MerkelSuite) TestBuildEmptyTreeReturnsError(c *C) {
-	_, err := createMerkleTree(make([]string, 0))
+	_, err := Create(make([]string, 0))
 	c.Assert(err.Error(), Equals, "Must send data of at least one element")
 }
 
 func (s *MerkelSuite) TestBuildWithValidInputReturnsNoError(c *C) {
-	_, err := createMerkleTree([]string{"one"})
+	_, err := Create([]string{"one"})
 	c.Assert(err, IsNil)
 }
 
 func (s *MerkelSuite) TestTreeOfOneElement(c *C) {
 	exp := createSha256([]byte("one"))
 
-	t, _ := createMerkleTree([]string{"one"})
+	t, _ := Create([]string{"one"})
 	c.Assert(t.getHash(), DeepEquals, exp)
 }
 
 func (s *MerkelSuite) TestTreeOfTwoElements(c *C) {
 	exp := createHash("one", "two")
 
-	t, _ := createMerkleTree([]string{"one", "two"})
+	t, _ := Create([]string{"one", "two"})
 	c.Assert(t.getHash(), DeepEquals, exp)
 }
 
@@ -46,7 +46,7 @@ func (s *MerkelSuite) TestTreeOfFourElements(c *C) {
 	secondNode := createHash("three", "four")
 	exp := createSha256(firstNode, secondNode)
 
-	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
+	t, _ := Create([]string{"one", "two", "three", "four"})
 	c.Assert(exp, DeepEquals, t.getHash())
 }
 
@@ -57,27 +57,27 @@ func (s *MerkelSuite) TestTreeOfSixElements(c *C) {
 	fourthNode := createHash("five", "six")
 	exp := createSha256(thirdNode, fourthNode)
 
-	t, _ := createMerkleTree([]string{"one", "two", "three", "four", "five",
+	t, _ := Create([]string{"one", "two", "three", "four", "five",
 		"six"})
 	c.Assert(exp, DeepEquals, t.getHash())
 }
 
 func (s *MerkelSuite) TestAuditTreeWithOneElementWhenElementIsNotInTree(c *C) {
-	t, _ := createMerkleTree([]string{"one", "two"})
+	t, _ := Create([]string{"one", "two"})
 
 	_, err := t.getProofFor("three")
 	c.Assert(err.Error(), Equals, "Cannot construct audit path for three")
 }
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElements(c *C) {
-	t, _ := createMerkleTree([]string{"one", "two"})
+	t, _ := Create([]string{"one", "two"})
 
 	p, _ := t.getProofFor("two")
 	c.Assert(p.auditPath[0].getHash(), DeepEquals, createSha256([]byte("one")))
 }
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElementsOppositeSide(c *C) {
-	t, _ := createMerkleTree([]string{"one", "two"})
+	t, _ := Create([]string{"one", "two"})
 
 	p, _ := t.getProofFor("one")
 	sibling := p.next()
@@ -98,7 +98,7 @@ func verify(p *proof, elem string, isLeftNode bool) []byte {
 }
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElements(c *C) {
-	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
+	t, _ := Create([]string{"one", "two", "three", "four"})
 	p, _ := t.getProofFor("two")
 
 	rootNode := verify(p, "two", false)
@@ -106,7 +106,7 @@ func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElements(c *C) {
 }
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElementsOppositeSide(c *C) {
-	t, _ := createMerkleTree([]string{"one", "two", "three", "four"})
+	t, _ := Create([]string{"one", "two", "three", "four"})
 	p, _ := t.getProofFor("three")
 
 	rootNode := verify(p, "two", true)
@@ -114,7 +114,7 @@ func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElementsOppositeSide(c *C) {
 }
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfSixElements(c *C) {
-	t, _ := createMerkleTree([]string{"one", "two", "three", "four", "five",
+	t, _ := Create([]string{"one", "two", "three", "four", "five",
 		"six"})
 	p, _ := t.getProofFor("three")
 

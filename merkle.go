@@ -7,7 +7,8 @@ type node interface {
 	getProofForLeaf(d string, p *proof) bool
 }
 
-type merkleTree struct {
+// Tree is a merkle tree with corresponding methods
+type Tree struct {
 	hash  []byte
 	right node
 	left  node
@@ -32,7 +33,7 @@ func (p *proof) add(e node) {
 	p.auditPath = append(p.auditPath, e)
 }
 
-func (m *merkleTree) getHash() []byte {
+func (m *Tree) getHash() []byte {
 	return m.hash
 }
 
@@ -40,7 +41,7 @@ func (l *leaf) getHash() []byte {
 	return l.hash
 }
 
-func (m *merkleTree) getProofForLeaf(d string, p *proof) bool {
+func (m *Tree) getProofForLeaf(d string, p *proof) bool {
 	if m.right.getProofForLeaf(d, p) {
 		p.add(m.left)
 		return true
@@ -56,7 +57,7 @@ func (l *leaf) getProofForLeaf(d string, p *proof) bool {
 	return l.data == d
 }
 
-func (m *merkleTree) getProofFor(e string) (*proof, error) {
+func (m *Tree) getProofFor(e string) (*proof, error) {
 	p := &proof{}
 	exists := m.getProofForLeaf(e, p)
 	if !exists {
@@ -72,7 +73,7 @@ func createLeaf(data string) *leaf {
 	}
 }
 
-func createTree(data []string) *merkleTree {
+func createTree(data []string) *Tree {
 	var left, right node
 
 	if len(data) == 2 { // no uneven trees (yet)
@@ -82,20 +83,21 @@ func createTree(data []string) *merkleTree {
 		right = createTree(data[len(data)-2:])
 	}
 
-	return &merkleTree{
+	return &Tree{
 		right: right,
 		left:  left,
 		hash:  createSha256(left.getHash(), right.getHash()),
 	}
 }
 
-func createMerkleTree(data []string) (*merkleTree, error) {
+// Create takes a list of data and returns the corresponding tree
+func Create(data []string) (*Tree, error) {
 	if len(data) == 0 {
-		return &merkleTree{}, fmt.Errorf("Must send data of at least one element")
+		return &Tree{}, fmt.Errorf("Must send data of at least one element")
 	}
 
 	if len(data) == 1 {
-		return &merkleTree{hash: createSha256([]byte(data[0]))}, nil
+		return &Tree{hash: createSha256([]byte(data[0]))}, nil
 	}
 
 	return createTree(data), nil
