@@ -102,3 +102,9 @@ func Create(data []string) (*Tree, error) {
 
 	return createTree(data), nil
 }
+
+// Add takes a new element and adds this to it's tree.
+func (m *Tree) Add(elem string) {
+	b := createSha256([]byte(elem))
+	m.hash = createSha256(m.hash, b)
+}
