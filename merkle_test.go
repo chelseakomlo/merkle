@@ -86,6 +86,7 @@ func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElementsOppositeSide(c *C) {
 	c.Assert(expectedRoot, DeepEquals, t.getHash())
 }
 
+// TODO finish this refactor
 func verify(p *proof, elem string, isLeftNode bool) []byte {
 	if isLeftNode {
 		proofNode := createSha256([]byte("three"))
