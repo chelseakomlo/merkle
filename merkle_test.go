@@ -62,15 +62,6 @@ func (s *MerkelSuite) TestTreeOfSixElements(c *C) {
 	c.Assert(exp, DeepEquals, t.getHash())
 }
 
-func (s *MerkelSuite) TestTreeOfOddNumberOfElements(c *C) {
-	firstNode := createHash("one", "two")
-	exp := createSha256(firstNode, createSha256([]byte("three")))
-
-	t, _ := Create([]string{"one", "two"})
-	t.Add("three")
-	c.Assert(t.getHash(), DeepEquals, exp)
-}
-
 func (s *MerkelSuite) TestAuditTreeWithOneElementWhenElementIsNotInTree(c *C) {
 	t, _ := Create([]string{"one", "two"})
 
@@ -171,4 +162,21 @@ func (s *MerkelSuite) TestAddForProof(c *C) {
 		&leaf{hash: []byte{2}},
 	}
 	c.Assert(p.auditPath, DeepEquals, exp)
+}
+
+func (s *MerkelSuite) TestCreateTreeOfOddNumberOfElements(c *C) {
+	firstNode := createHash("one", "two")
+	exp := createSha256(firstNode, createSha256([]byte("three")))
+
+	t, _ := Create([]string{"one", "two", "three"})
+	c.Assert(t.getHash(), DeepEquals, exp)
+}
+
+func (s *MerkelSuite) TestAddElementToExistingTree(c *C) {
+	firstNode := createHash("one", "two")
+	exp := createSha256(firstNode, createSha256([]byte("three")))
+
+	t, _ := Create([]string{"one", "two"})
+	t.Add("three")
+	c.Assert(t.getHash(), DeepEquals, exp)
 }

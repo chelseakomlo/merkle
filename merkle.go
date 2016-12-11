@@ -73,14 +73,30 @@ func createLeaf(data string) *leaf {
 	}
 }
 
+func split(d []string) ([]string, []string) {
+	i := len(d)
+	if i%2 == 0 {
+		return d[:i-2], d[i-2:]
+	}
+	return d[:i-1], d[i-1:]
+}
+
 func createTree(data []string) *Tree {
 	var left, right node
 
-	if len(data) == 2 { // no uneven trees (yet)
+	if len(data) == 1 {
+		left = createLeaf(data[0])
+		return &Tree{
+			right: &Tree{},
+			left:  left,
+			hash:  left.getHash(),
+		}
+	} else if len(data) == 2 {
 		left, right = createLeaf(data[0]), createLeaf(data[1])
 	} else {
-		left = createTree(data[:len(data)-2])
-		right = createTree(data[len(data)-2:])
+		l, r := split(data)
+		left = createTree(l)
+		right = createTree(r)
 	}
 
 	return &Tree{
@@ -103,7 +119,7 @@ func Create(data []string) (*Tree, error) {
 	return createTree(data), nil
 }
 
-// Add takes a new element and adds this to it's tree.
+// Add takes a new element and adds this element to it's tree.
 func (m *Tree) Add(elem string) {
 	b := createSha256([]byte(elem))
 	m.hash = createSha256(m.hash, b)

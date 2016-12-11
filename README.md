@@ -10,6 +10,4 @@
 4. Add licence
 5. Add example usage
 6. Benchmark
-7. Uneven trees
-8. Then ability to add new elements
 
