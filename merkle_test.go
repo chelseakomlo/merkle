@@ -65,21 +65,21 @@ func (s *MerkelSuite) TestTreeOfSixElements(c *C) {
 func (s *MerkelSuite) TestAuditTreeWithOneElementWhenElementIsNotInTree(c *C) {
 	t, _ := Create([]string{"one", "two"})
 
-	_, err := t.getProofFor("three")
+	_, err := t.GetProofFor("three")
 	c.Assert(err.Error(), Equals, "Cannot construct audit path for three")
 }
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElements(c *C) {
 	t, _ := Create([]string{"one", "two"})
 
-	p, _ := t.getProofFor("two")
+	p, _ := t.GetProofFor("two")
 	c.Assert(p.auditPath[0].getHash(), DeepEquals, createSha256([]byte("one")))
 }
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElementsOppositeSide(c *C) {
 	t, _ := Create([]string{"one", "two"})
 
-	p, _ := t.getProofFor("one")
+	p, _ := t.GetProofFor("one")
 	sibling := p.next()
 	expectedRoot := createSha256(createSha256([]byte("one")), sibling)
 	c.Assert(sibling, DeepEquals, createSha256([]byte("two")))
@@ -87,7 +87,7 @@ func (s *MerkelSuite) TestGetProofInMerkleTreeOfTwoElementsOppositeSide(c *C) {
 }
 
 // TODO finish this refactor
-func verify(p *proof, elem string, isLeftNode bool) []byte {
+func verify(p *Proof, elem string, isLeftNode bool) []byte {
 	if isLeftNode {
 		proofNode := createSha256([]byte("three"))
 		parentNode := createSha256(proofNode, p.next())
@@ -100,7 +100,7 @@ func verify(p *proof, elem string, isLeftNode bool) []byte {
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElements(c *C) {
 	t, _ := Create([]string{"one", "two", "three", "four"})
-	p, _ := t.getProofFor("two")
+	p, _ := t.GetProofFor("two")
 
 	rootNode := verify(p, "two", false)
 	c.Assert(rootNode, DeepEquals, t.getHash())
@@ -108,7 +108,7 @@ func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElements(c *C) {
 
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElementsOppositeSide(c *C) {
 	t, _ := Create([]string{"one", "two", "three", "four"})
-	p, _ := t.getProofFor("three")
+	p, _ := t.GetProofFor("three")
 
 	rootNode := verify(p, "two", true)
 	c.Assert(rootNode, DeepEquals, t.getHash())
@@ -117,7 +117,7 @@ func (s *MerkelSuite) TestGetProofInMerkleTreeOfFourElementsOppositeSide(c *C) {
 func (s *MerkelSuite) TestGetProofInMerkleTreeOfSixElements(c *C) {
 	t, _ := Create([]string{"one", "two", "three", "four", "five",
 		"six"})
-	p, _ := t.getProofFor("three")
+	p, _ := t.GetProofFor("three")
 
 	proofNode := createSha256([]byte("three"))
 	parentNode := createSha256(proofNode, p.next())
@@ -128,7 +128,7 @@ func (s *MerkelSuite) TestGetProofInMerkleTreeOfSixElements(c *C) {
 }
 
 func (s *MerkelSuite) TestNextForProof(c *C) {
-	p := &proof{
+	p := &Proof{
 		auditPath: []node{
 			&leaf{hash: []byte{1}},
 			&leaf{hash: []byte{2}},
@@ -150,7 +150,7 @@ func (s *MerkelSuite) TestNextForProof(c *C) {
 }
 
 func (s *MerkelSuite) TestAddForProof(c *C) {
-	p := &proof{
+	p := &Proof{
 		auditPath: make([]node, 0),
 	}
 	p.add(&leaf{hash: []byte{1}})

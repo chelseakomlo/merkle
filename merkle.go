@@ -4,7 +4,7 @@ import "fmt"
 
 type node interface {
 	getHash() []byte
-	getProofForLeaf(d string, p *proof) bool
+	getProofForLeaf(d string, p *Proof) bool
 }
 
 // Tree is a merkle tree with corresponding methods
@@ -19,17 +19,19 @@ type leaf struct {
 	data string
 }
 
-type proof struct {
-	auditPath []node // array of nodes proving the inclusion of an element
+// Proof contains an array of nodes proving the inclusion of an element in a
+// tree
+type Proof struct {
+	auditPath []node
 }
 
-func (p *proof) next() []byte {
+func (p *Proof) next() []byte {
 	var i node
 	i, p.auditPath = p.auditPath[0], p.auditPath[1:]
 	return i.getHash()
 }
 
-func (p *proof) add(e node) {
+func (p *Proof) add(e node) {
 	p.auditPath = append(p.auditPath, e)
 }
 
@@ -41,7 +43,7 @@ func (l *leaf) getHash() []byte {
 	return l.hash
 }
 
-func (m *Tree) getProofForLeaf(d string, p *proof) bool {
+func (m *Tree) getProofForLeaf(d string, p *Proof) bool {
 	if m.right.getProofForLeaf(d, p) {
 		p.add(m.left)
 		return true
@@ -53,15 +55,18 @@ func (m *Tree) getProofForLeaf(d string, p *proof) bool {
 	return false
 }
 
-func (l *leaf) getProofForLeaf(d string, p *proof) bool {
+func (l *leaf) getProofForLeaf(d string, p *Proof) bool {
 	return l.data == d
 }
 
-func (m *Tree) getProofFor(e string) (*proof, error) {
-	p := &proof{}
+// GetProofFor returns proof with the audit path for a particular element in
+// the tree. Returns a proof if the element is in the tree, or an error if the
+// element is not in the tree.
+func (m *Tree) GetProofFor(e string) (*Proof, error) {
+	p := &Proof{}
 	exists := m.getProofForLeaf(e, p)
 	if !exists {
-		return &proof{}, fmt.Errorf("Cannot construct audit path for %s", e)
+		return &Proof{}, fmt.Errorf("Cannot construct audit path for %s", e)
 	}
 	return p, nil
 }
