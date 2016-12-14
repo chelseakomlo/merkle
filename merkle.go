@@ -78,28 +78,28 @@ func createLeaf(data string) *leaf {
 	}
 }
 
-func split(d []string) ([]string, []string) {
-	i := len(d)
+func split(l []*leaf) ([]*leaf, []*leaf) {
+	i := len(l)
 	if i%2 == 0 {
-		return d[:i-2], d[i-2:]
+		return l[:i-2], l[i-2:]
 	}
-	return d[:i-1], d[i-1:]
+	return l[:i-1], l[i-1:]
 }
 
-func createTree(data []string) *Tree {
+func createTree(leaves []*leaf) *Tree {
 	var left, right node
 
-	if len(data) == 1 {
-		left = createLeaf(data[0])
+	if len(leaves) == 1 {
+		left = leaves[0]
 		return &Tree{
-			right: &Tree{},
+			right: &leaf{},
 			left:  left,
 			hash:  left.getHash(),
 		}
-	} else if len(data) == 2 {
-		left, right = createLeaf(data[0]), createLeaf(data[1])
+	} else if len(leaves) == 2 {
+		left, right = leaves[0], leaves[1]
 	} else {
-		l, r := split(data)
+		l, r := split(leaves)
 		left = createTree(l)
 		right = createTree(r)
 	}
@@ -121,7 +121,12 @@ func Create(data []string) (*Tree, error) {
 		return &Tree{hash: createSha256([]byte(data[0]))}, nil
 	}
 
-	return createTree(data), nil
+	var leaves []*leaf
+	for _, e := range data {
+		leaves = append(leaves, createLeaf(e))
+	}
+
+	return createTree(leaves), nil
 }
 
 // Add takes a new element and adds this element to it's tree.
