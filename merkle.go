@@ -87,16 +87,18 @@ func split(l []*leaf) ([]*leaf, []*leaf) {
 }
 
 func createTree(leaves []*leaf) *Tree {
-	var left, right node
-
 	if len(leaves) == 1 {
-		left = leaves[0]
+		l := leaves[0]
 		return &Tree{
 			right: &leaf{},
-			left:  left,
-			hash:  left.getHash(),
+			left:  l,
+			hash:  l.getHash(),
 		}
-	} else if len(leaves) == 2 {
+	}
+
+	var left, right node
+
+	if len(leaves) == 2 {
 		left, right = leaves[0], leaves[1]
 	} else {
 		l, r := split(leaves)
