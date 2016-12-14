@@ -16,9 +16,8 @@ Get a proof for a specific element in the tree:
 
 ### Todo
 1. Test against other vectors
-2. Expose interfaces
-3. Accept different data types
-4. Add licence
-5. Add example usage
-6. Benchmark
+2. Accept different data types
+3. Add licence
+4. Add example usage
+5. Benchmark
 
