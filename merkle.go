@@ -59,9 +59,8 @@ func (l *leaf) getProofForLeaf(d string, p *Proof) bool {
 	return l.data == d
 }
 
-// GetProofFor returns proof with the audit path for a particular element in
-// the tree. Returns a proof if the element is in the tree, or an error if the
-// element is not in the tree.
+// GetProofFor returns proof with the audit path for a particular element, if
+// this element is in the tree. Otherwise, return an error.
 func (m *Tree) GetProofFor(e string) (*Proof, error) {
 	p := &Proof{}
 	exists := m.getProofForLeaf(e, p)
@@ -117,10 +116,6 @@ func createTree(leaves []*leaf) *Tree {
 func Create(data []string) (*Tree, error) {
 	if len(data) == 0 {
 		return &Tree{}, fmt.Errorf("Must send data of at least one element")
-	}
-
-	if len(data) == 1 {
-		return &Tree{hash: createSha256([]byte(data[0]))}, nil
 	}
 
 	var leaves []*leaf
