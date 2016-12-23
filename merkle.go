@@ -7,7 +7,7 @@ type node interface {
 	getProofForLeaf(d string, p *Proof) bool
 }
 
-// Tree is a merkle tree with corresponding methods
+// Tree is a Merkle Tree with a signature, and left and right branches.
 type Tree struct {
 	hash  []byte
 	right node
@@ -59,8 +59,8 @@ func (l *leaf) getProofForLeaf(d string, p *Proof) bool {
 	return l.data == d
 }
 
-// GetProofFor returns proof with the audit path for a particular element, if
-// this element is in the tree. Otherwise, return an error.
+// GetProofFor returns a proof with the audit path for a particular element,
+// if this element is in the tree. Otherwise, return a non-nil error.
 func (m *Tree) GetProofFor(e string) (*Proof, error) {
 	p := &Proof{}
 	exists := m.getProofForLeaf(e, p)
@@ -112,7 +112,7 @@ func createTree(leaves []*leaf) *Tree {
 	}
 }
 
-// Create takes a list of data and returns the corresponding tree
+// Create takes a list of data and returns the corresponding Merkle Tree
 func Create(data []string) (*Tree, error) {
 	if len(data) == 0 {
 		return &Tree{}, fmt.Errorf("Must send data of at least one element")
@@ -126,7 +126,7 @@ func Create(data []string) (*Tree, error) {
 	return createTree(leaves), nil
 }
 
-// Add takes a new element and adds this element to it's tree.
+// Add accepts a new element and adds it to itself
 func (m *Tree) Add(elem string) {
 	b := createSha256([]byte(elem))
 	m.hash = createSha256(m.hash, b)

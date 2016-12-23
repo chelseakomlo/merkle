@@ -28,6 +28,5 @@ TODO
 1. Test against other vectors
 2. Accept different data types?
 3. Add licence
-4. Add example usage
-5. Benchmark
+4. Benchmark
 
