@@ -4,14 +4,22 @@ Not ready for use!
 
 ### How to use
 
-Create a new tree:
+This Merkle Tree accepts only leaves of type string, looking something like
+this:
+
+`data := []string{"one", "two", "three"}`
+
+You can create a new Merkle Tree like this:
 `tree := Create(data)`
 
-Add an element to an existing tree:
+Adding an element to an existing tree works like this:
 `tree.Add(elem)`
 
-Get a proof for a specific element in the tree:
+Getting a proof for a specific element in the tree is as follows:
 `proof := tree.GetProofFor(elem)`
+
+Verifying a proof is as follows:
+TODO
 
 ### Running tests
 `make test`
