@@ -1,6 +1,8 @@
 ## Merkle Tree Work in Progress
 
-### How to
+Not ready for use!
+
+### How to use
 
 Create a new tree:
 `tree := Create(data)`
@@ -16,7 +18,7 @@ Get a proof for a specific element in the tree:
 
 ### Todo
 1. Test against other vectors
-2. Accept different data types
+2. Accept different data types?
 3. Add licence
 4. Add example usage
 5. Benchmark
