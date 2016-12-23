@@ -19,20 +19,21 @@ type leaf struct {
 	data string
 }
 
-// Proof contains an array of nodes proving the inclusion of an element in a
+// Proof contains an audit path proving the inclusion of an element in a
 // tree
 type Proof struct {
-	auditPath []node
+	// AuditPath is an array of nodes necessary for a proof
+	AuditPath []node
 }
 
 func (p *Proof) next() []byte {
 	var i node
-	i, p.auditPath = p.auditPath[0], p.auditPath[1:]
+	i, p.AuditPath = p.AuditPath[0], p.AuditPath[1:]
 	return i.getHash()
 }
 
 func (p *Proof) add(e node) {
-	p.auditPath = append(p.auditPath, e)
+	p.AuditPath = append(p.AuditPath, e)
 }
 
 func (m *Tree) getHash() []byte {

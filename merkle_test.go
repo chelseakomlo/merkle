@@ -73,7 +73,7 @@ func (s *MerkleSuite) TestGetProofInMerkleTreeOfTwoElements(c *C) {
 	t, _ := Create([]string{"one", "two"})
 
 	p, _ := t.GetProofFor("two")
-	c.Assert(p.auditPath[0].getHash(), DeepEquals, createSha256([]byte("one")))
+	c.Assert(p.AuditPath[0].getHash(), DeepEquals, createSha256([]byte("one")))
 }
 
 func (s *MerkleSuite) TestGetProofInMerkleTreeOfTwoElementsOppositeSide(c *C) {
@@ -139,7 +139,7 @@ func (s *MerkleSuite) TestValidateProofForMerkleTreeOfTwoElementsOppositeSide(c 
 
 func (s *MerkleSuite) TestNextForProof(c *C) {
 	p := &Proof{
-		auditPath: []node{
+		AuditPath: []node{
 			&leaf{hash: []byte{1}},
 			&leaf{hash: []byte{2}},
 			&leaf{hash: []byte{3}},
@@ -148,30 +148,30 @@ func (s *MerkleSuite) TestNextForProof(c *C) {
 
 	one := p.next()
 	c.Assert(one, DeepEquals, []byte{1})
-	c.Assert(len(p.auditPath), Equals, 2)
+	c.Assert(len(p.AuditPath), Equals, 2)
 
 	two := p.next()
 	c.Assert(two, DeepEquals, []byte{2})
-	c.Assert(len(p.auditPath), Equals, 1)
+	c.Assert(len(p.AuditPath), Equals, 1)
 
 	three := p.next()
 	c.Assert(three, DeepEquals, []byte{3})
-	c.Assert(len(p.auditPath), Equals, 0)
+	c.Assert(len(p.AuditPath), Equals, 0)
 }
 
 func (s *MerkleSuite) TestAddForProof(c *C) {
 	p := &Proof{
-		auditPath: make([]node, 0),
+		AuditPath: make([]node, 0),
 	}
 	p.add(&leaf{hash: []byte{1}})
-	c.Assert(p.auditPath, DeepEquals, []node{&leaf{hash: []byte{1}}})
+	c.Assert(p.AuditPath, DeepEquals, []node{&leaf{hash: []byte{1}}})
 
 	p.add(&leaf{hash: []byte{2}})
 	exp := []node{
 		&leaf{hash: []byte{1}},
 		&leaf{hash: []byte{2}},
 	}
-	c.Assert(p.auditPath, DeepEquals, exp)
+	c.Assert(p.AuditPath, DeepEquals, exp)
 }
 
 func (s *MerkleSuite) TestCreateTreeOfOddNumberOfElements(c *C) {
