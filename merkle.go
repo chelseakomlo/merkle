@@ -2,39 +2,32 @@ package merkle
 
 import "fmt"
 
+type direction int
+
+// What position the element is in the tree
+const (
+	RIGHT direction = iota
+	LEFT
+)
+
 type node interface {
 	getHash() []byte
 	getProofForLeaf(d string, p *Proof) bool
+	getPosition() direction
 }
 
 // Tree is a Merkle Tree with a signature, and left and right branches.
 type Tree struct {
-	hash  []byte
-	right node
-	left  node
+	hash     []byte
+	right    node
+	left     node
+	position direction
 }
 
 type leaf struct {
-	hash []byte
-	data string
-}
-
-// Proof contains an audit path proving the inclusion of an element in a
-// tree
-type Proof struct {
-	// AuditPath is an array of nodes necessary for a proof
-	AuditPath []node
-}
-
-func (p *Proof) next() []byte {
-	var i node
-	// TODO catch failure if the list is at the last element
-	i, p.AuditPath = p.AuditPath[0], p.AuditPath[1:]
-	return i.getHash()
-}
-
-func (p *Proof) add(e node) {
-	p.AuditPath = append(p.AuditPath, e)
+	hash     []byte
+	data     string
+	position direction
 }
 
 func (m *Tree) getHash() []byte {
@@ -43,6 +36,14 @@ func (m *Tree) getHash() []byte {
 
 func (l *leaf) getHash() []byte {
 	return l.hash
+}
+
+func (m *Tree) getPosition() direction {
+	return m.position
+}
+
+func (l *leaf) getPosition() direction {
+	return l.position
 }
 
 func (m *Tree) getProofForLeaf(d string, p *Proof) bool {
@@ -64,7 +65,7 @@ func (l *leaf) getProofForLeaf(d string, p *Proof) bool {
 // GetProofFor returns a proof with the audit path for a particular element,
 // if this element is in the tree. Otherwise, return a non-nil error.
 func (m *Tree) GetProofFor(e string) (*Proof, error) {
-	p := &Proof{}
+	p := &Proof{elem: e, root: m.getHash()}
 	exists := m.getProofForLeaf(e, p)
 	if !exists {
 		return &Proof{}, fmt.Errorf("Cannot construct audit path for %s", e)
@@ -72,10 +73,11 @@ func (m *Tree) GetProofFor(e string) (*Proof, error) {
 	return p, nil
 }
 
-func createLeaf(data string) *leaf {
+func createLeaf(data string, pos int) *leaf {
 	return &leaf{
-		data: data,
-		hash: createSha256([]byte(data)),
+		data:     data,
+		hash:     createSha256([]byte(data)),
+		position: direction(pos % 2),
 	}
 }
 
@@ -87,13 +89,16 @@ func split(l []*leaf) ([]*leaf, []*leaf) {
 	return l[:i-1], l[i-1:]
 }
 
-func createTree(leaves []*leaf) *Tree {
+// TODO maybe make a wrapper so the signature with initializing the direction
+// isn't exposed everywhere
+func createTree(leaves []*leaf, d direction) *Tree {
 	if len(leaves) == 1 {
 		l := leaves[0]
 		return &Tree{
-			right: &leaf{},
-			left:  l,
-			hash:  l.getHash(),
+			right:    &leaf{},
+			left:     l,
+			hash:     l.getHash(),
+			position: d,
 		}
 	}
 
@@ -103,14 +108,15 @@ func createTree(leaves []*leaf) *Tree {
 		left, right = leaves[0], leaves[1]
 	} else {
 		l, r := split(leaves)
-		left = createTree(l)
-		right = createTree(r)
+		left = createTree(l, LEFT)
+		right = createTree(r, RIGHT)
 	}
 
 	return &Tree{
-		right: right,
-		left:  left,
-		hash:  createSha256(left.getHash(), right.getHash()),
+		right:    right,
+		left:     left,
+		hash:     createSha256(left.getHash(), right.getHash()),
+		position: d,
 	}
 }
 
@@ -121,11 +127,11 @@ func Create(data []string) (*Tree, error) {
 	}
 
 	var leaves []*leaf
-	for _, e := range data {
-		leaves = append(leaves, createLeaf(e))
+	for i, e := range data {
+		leaves = append(leaves, createLeaf(e, i))
 	}
 
-	return createTree(leaves), nil
+	return createTree(leaves, LEFT), nil
 }
 
 // Add accepts a new element and adds it to itself
