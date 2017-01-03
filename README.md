@@ -26,7 +26,7 @@ TODO
 
 ### Todo
 1. Test against other vectors
-2. Accept different data types?
-3. Add licence
-4. Benchmark
+2. Add licence
+3. Benchmark
+4. Add verification method on a proof
 
