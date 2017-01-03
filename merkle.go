@@ -28,6 +28,7 @@ type Proof struct {
 
 func (p *Proof) next() []byte {
 	var i node
+	// TODO catch failure if the list is at the last element
 	i, p.AuditPath = p.AuditPath[0], p.AuditPath[1:]
 	return i.getHash()
 }
