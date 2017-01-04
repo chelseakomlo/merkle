@@ -1,9 +1,8 @@
 package merkle
 
-// Proof contains an audit path proving the inclusion of an element in a
-// tree
+// Proof contains an audit path proving the inclusion of an element in a tree
 type Proof struct {
-	// AuditPath is an array of nodes necessary for a proof
+	// AuditPath is an array of nodes necessary to reconstruct a proof
 	AuditPath []node
 	root      []byte
 	elem      string
@@ -33,6 +32,7 @@ func areBytesEqual(a, b []byte) bool {
 // Validate determines whether the audit path can be reconstructed for a single
 // element. If it can be (and therefore is an element in the tree), return
 // true, otherwise return false.
+// TODO this function can be further simplified
 func (p *Proof) Validate() bool {
 	if len(p.AuditPath) == 0 {
 		return false
