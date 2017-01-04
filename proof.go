@@ -19,7 +19,6 @@ func (p *Proof) add(e node) {
 	p.AuditPath = append(p.AuditPath, e)
 }
 
-// TODO find the golang operation that does this
 func areBytesEqual(a, b []byte) bool {
 	for i, e := range a {
 		if e != b[i] {
