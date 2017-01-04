@@ -18,8 +18,8 @@ Adding an element to an existing tree works like this:
 Getting a proof for a specific element in the tree is as follows:
 `proof := tree.GetProofFor(elem)`
 
-Verifying a proof is as follows:
-TODO
+Verifying a proof is as follows, returning either true or false:
+`isValid := proof.Verify()`
 
 ### Running tests
 `make test`
@@ -28,5 +28,4 @@ TODO
 1. Test against other vectors
 2. Add licence
 3. Benchmark
-4. Add verification method on a proof
 
