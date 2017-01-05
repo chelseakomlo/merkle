@@ -24,3 +24,12 @@ func createSha256(data ...[]byte) []byte {
 	h.Write(flattenOneLevel(data))
 	return h.Sum(nil)
 }
+
+func areBytesEqual(a, b []byte) bool {
+	for i, e := range a {
+		if e != b[i] {
+			return false
+		}
+	}
+	return true
+}

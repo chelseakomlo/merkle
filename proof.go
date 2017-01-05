@@ -21,15 +21,6 @@ func (p *Proof) add(e node) {
 	p.AuditPath = append(p.AuditPath, e)
 }
 
-func areBytesEqual(a, b []byte) bool {
-	for i, e := range a {
-		if e != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
 // Validate determines whether the audit path can be reconstructed for a single
 // element. If it can be (and therefore is an element in the tree), return
 // true, otherwise return false.
