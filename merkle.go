@@ -89,8 +89,6 @@ func split(l []*leaf) ([]*leaf, []*leaf) {
 	return l[:i-1], l[i-1:]
 }
 
-// TODO maybe make a wrapper so the signature with initializing the direction
-// isn't exposed everywhere
 func createTree(leaves []*leaf, d direction) *Tree {
 	if len(leaves) == 1 {
 		l := leaves[0]
