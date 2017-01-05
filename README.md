@@ -10,15 +10,19 @@ this:
 `data := []string{"one", "two", "three"}`
 
 You can create a new Merkle Tree like this:
+
 `tree := Create(data)`
 
 Adding an element to an existing tree works like this:
+
 `tree.Add(elem)`
 
 Getting a proof for a specific element in the tree is as follows:
+
 `proof := tree.GetProofFor(elem)`
 
 Verifying a proof is as follows, returning either true or false:
+
 `isValid := proof.Verify()`
 
 ### Running tests
@@ -26,6 +30,5 @@ Verifying a proof is as follows, returning either true or false:
 
 ### Todo
 1. Test against other vectors
-2. Add licence
-3. Benchmark
+2. Benchmark
 
