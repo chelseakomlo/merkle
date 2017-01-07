@@ -30,9 +30,9 @@ func (s *ProofSuite) TestGetProofInMerkleTreeOfTwoElementsOppositeSide(c *C) {
 	t, _ := Create([]string{"one", "two"})
 
 	p, _ := t.GetProofFor("one")
-	sibling := p.next()
-	expectedRoot := createSha256(createSha256([]byte("one")), sibling)
-	c.Assert(sibling, DeepEquals, createSha256([]byte("two")))
+	sibling := p.AuditPath[0]
+	expectedRoot := createSha256(createSha256([]byte("one")), sibling.getHash())
+	c.Assert(sibling.getHash(), DeepEquals, createSha256([]byte("two")))
 	c.Assert(expectedRoot, DeepEquals, t.getHash())
 }
 
@@ -41,8 +41,8 @@ func (s *ProofSuite) TestGetProofInMerkleTreeOfFourElements(c *C) {
 	p, _ := t.GetProofFor("two")
 
 	proofNode := createSha256([]byte("two"))
-	parentNode := createSha256(p.next(), proofNode)
-	rootNode := createSha256(parentNode, p.next())
+	parentNode := createSha256(p.AuditPath[0].getHash(), proofNode)
+	rootNode := createSha256(parentNode, p.AuditPath[1].getHash())
 	c.Assert(rootNode, DeepEquals, t.getHash())
 }
 
@@ -51,8 +51,8 @@ func (s *ProofSuite) TestGetProofInMerkleTreeOfFourElementsOppositeSide(c *C) {
 	p, _ := t.GetProofFor("three")
 
 	proofNode := createSha256([]byte("three"))
-	parentNode := createSha256(proofNode, p.next())
-	rootNode := createSha256(p.next(), parentNode)
+	parentNode := createSha256(proofNode, p.AuditPath[0].getHash())
+	rootNode := createSha256(p.AuditPath[1].getHash(), parentNode)
 	c.Assert(rootNode, DeepEquals, t.getHash())
 }
 
@@ -62,9 +62,9 @@ func (s *ProofSuite) TestGetProofInMerkleTreeOfSixElements(c *C) {
 	p, _ := t.GetProofFor("three")
 
 	proofNode := createSha256([]byte("three"))
-	parentNode := createSha256(proofNode, p.next())
-	grandparentNode := createSha256(p.next(), parentNode)
-	rootNode := createSha256(grandparentNode, p.next())
+	parentNode := createSha256(proofNode, p.AuditPath[0].getHash())
+	grandparentNode := createSha256(p.AuditPath[1].getHash(), parentNode)
+	rootNode := createSha256(grandparentNode, p.AuditPath[2].getHash())
 
 	c.Assert(rootNode, DeepEquals, t.getHash())
 }
@@ -73,32 +73,10 @@ func (s *ProofSuite) TestValidateProofForMerkleTreeOfTwoElementsOppositeSide(c *
 	t, _ := Create([]string{"one", "two"})
 
 	p, _ := t.GetProofFor("one")
-	sibling := p.next()
-	expectedRoot := createSha256(createSha256([]byte("one")), sibling)
-	c.Assert(sibling, DeepEquals, createSha256([]byte("two")))
+	sibling := p.AuditPath[0]
+	expectedRoot := createSha256(createSha256([]byte("one")), sibling.getHash())
+	c.Assert(sibling.getHash(), DeepEquals, createSha256([]byte("two")))
 	c.Assert(expectedRoot, DeepEquals, t.getHash())
-}
-
-func (s *ProofSuite) TestNextForProof(c *C) {
-	p := &Proof{
-		AuditPath: []node{
-			&leaf{hash: []byte{1}},
-			&leaf{hash: []byte{2}},
-			&leaf{hash: []byte{3}},
-		},
-	}
-
-	one := p.next()
-	c.Assert(one, DeepEquals, []byte{1})
-	c.Assert(len(p.AuditPath), Equals, 2)
-
-	two := p.next()
-	c.Assert(two, DeepEquals, []byte{2})
-	c.Assert(len(p.AuditPath), Equals, 1)
-
-	three := p.next()
-	c.Assert(three, DeepEquals, []byte{3})
-	c.Assert(len(p.AuditPath), Equals, 0)
 }
 
 func (s *ProofSuite) TestAddForProof(c *C) {

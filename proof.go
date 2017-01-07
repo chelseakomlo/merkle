@@ -10,13 +10,6 @@ type Proof struct {
 	elem      string
 }
 
-func (p *Proof) next() []byte {
-	var i node
-	// TODO catch failure if the list is at the last element
-	i, p.AuditPath = p.AuditPath[0], p.AuditPath[1:]
-	return i.getHash()
-}
-
 func (p *Proof) add(e node) {
 	p.AuditPath = append(p.AuditPath, e)
 }
