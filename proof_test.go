@@ -36,23 +36,13 @@ func (s *ProofSuite) TestGetProofInMerkleTreeOfTwoElementsOppositeSide(c *C) {
 	c.Assert(expectedRoot, DeepEquals, t.getHash())
 }
 
-// TODO finish this refactor
-func verify(p *Proof, elem string, isLeftNode bool) []byte {
-	if isLeftNode {
-		proofNode := createSha256([]byte("three"))
-		parentNode := createSha256(proofNode, p.next())
-		return createSha256(p.next(), parentNode)
-	}
-	proofNode := createSha256([]byte(elem))
-	parentNode := createSha256(p.next(), proofNode)
-	return createSha256(parentNode, p.next())
-}
-
 func (s *ProofSuite) TestGetProofInMerkleTreeOfFourElements(c *C) {
 	t, _ := Create([]string{"one", "two", "three", "four"})
 	p, _ := t.GetProofFor("two")
 
-	rootNode := verify(p, "two", false)
+	proofNode := createSha256([]byte("two"))
+	parentNode := createSha256(p.next(), proofNode)
+	rootNode := createSha256(parentNode, p.next())
 	c.Assert(rootNode, DeepEquals, t.getHash())
 }
 
@@ -60,7 +50,9 @@ func (s *ProofSuite) TestGetProofInMerkleTreeOfFourElementsOppositeSide(c *C) {
 	t, _ := Create([]string{"one", "two", "three", "four"})
 	p, _ := t.GetProofFor("three")
 
-	rootNode := verify(p, "two", true)
+	proofNode := createSha256([]byte("three"))
+	parentNode := createSha256(proofNode, p.next())
+	rootNode := createSha256(p.next(), parentNode)
 	c.Assert(rootNode, DeepEquals, t.getHash())
 }
 
