@@ -29,23 +29,26 @@ func (p *Proof) Validate() bool {
 		return false
 	}
 	var first []byte
+	sibling := p.AuditPath[0]
 	proofNode := createSha256([]byte(p.elem))
 
-	if p.AuditPath[0].getPosition() == LEFT {
-		first = createSha256(proofNode, p.next())
+	if sibling.getPosition() == LEFT {
+		first = createSha256(proofNode, sibling.getHash())
 	} else {
-		first = createSha256(p.next(), proofNode)
+		first = createSha256(sibling.getHash(), proofNode)
 	}
 
-	if len(p.AuditPath) == 0 {
+	if len(p.AuditPath) == 1 {
 		return areBytesEqual(p.root, first)
 	}
 
 	var next []byte
-	if p.AuditPath[0].getPosition() == LEFT {
-		next = createSha256(p.next(), first)
+	parent := p.AuditPath[1]
+
+	if parent.getPosition() == LEFT {
+		next = createSha256(parent.getHash(), first)
 	} else {
-		next = createSha256(first, p.next())
+		next = createSha256(first, parent.getHash())
 	}
 	return areBytesEqual(p.root, next)
 }
