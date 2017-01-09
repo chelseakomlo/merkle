@@ -31,4 +31,5 @@ Verifying a proof is as follows, returning either true or false:
 ### Todo
 1. Test against other vectors
 2. Benchmark
+3. Allow ability to specify other hashing algorithms
 
