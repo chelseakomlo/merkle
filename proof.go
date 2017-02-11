@@ -3,8 +3,6 @@ package merkle
 // Proof contains an audit path proving the inclusion of an element in a tree
 type Proof struct {
 	// AuditPath is an array of nodes necessary to reconstruct a proof
-	// TODO this doesn't have to be an array, a proof can hold just a sibling,
-	// parent, and root node.
 	AuditPath []node
 	root      []byte
 	elem      string
