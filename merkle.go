@@ -36,6 +36,7 @@ type leaf struct {
 func (l *leaf) getHash() []byte        { return l.hash }
 func (l *leaf) getPosition() direction { return l.position }
 
+// TODO
 func (m *Tree) getProofForLeaf(d string, p *Proof) bool {
 	if m.right.getProofForLeaf(d, p) {
 		p.add(m.left)
