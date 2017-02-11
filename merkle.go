@@ -24,27 +24,17 @@ type Tree struct {
 	position direction
 }
 
+func (m *Tree) getHash() []byte        { return m.hash }
+func (m *Tree) getPosition() direction { return m.position }
+
 type leaf struct {
 	hash     []byte
 	data     string
 	position direction
 }
 
-func (m *Tree) getHash() []byte {
-	return m.hash
-}
-
-func (l *leaf) getHash() []byte {
-	return l.hash
-}
-
-func (m *Tree) getPosition() direction {
-	return m.position
-}
-
-func (l *leaf) getPosition() direction {
-	return l.position
-}
+func (l *leaf) getHash() []byte        { return l.hash }
+func (l *leaf) getPosition() direction { return l.position }
 
 func (m *Tree) getProofForLeaf(d string, p *Proof) bool {
 	if m.right.getProofForLeaf(d, p) {
