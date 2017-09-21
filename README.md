@@ -15,11 +15,11 @@ You can create a new Merkle Tree like this:
 
 Adding an element to an existing tree works like this:
 
-`tree.Add(elem)`
+`tree.Add("all cats are beautiful")`
 
 Getting a proof for a specific element in the tree is as follows:
 
-`proof := tree.GetProofFor(elem)`
+`proof := tree.GetProofFor("all cats are beautiful")`
 
 Verifying a proof is as follows, returning either true or false:
 
